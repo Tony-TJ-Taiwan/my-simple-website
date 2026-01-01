@@ -5,4 +5,4 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/my-simple-website/', // 這裡必須跟你的 GitHub 儲存庫名稱完全一致
-})
+}) 
