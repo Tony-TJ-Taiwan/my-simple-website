@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -10,25 +10,38 @@ permissions:
   id-token: write
 
 jobs:
-  build-deploy:
+  build_site:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          path: .
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Artifacts
+        # 這裡從 v3 升級到 v3 的最新修正版或 v3.0.1+，確保不會觸發舊版錯誤
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
   deploy:
-    needs: build-deploy
+    needs: build_site
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to Pages
-        uses: actions/deploy-pages@v1
+      - name: Deploy
+        id: deployment
+        # 確保部署組件也是最新版
+        uses: actions/deploy-pages@v4
